@@ -1,6 +1,7 @@
 import Form from '@/app/ui/invoices/edit-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchCustomers, fetchInvoiceById } from '@/app/lib/data';
+import { notFound } from 'next/navigation';
 
 export default async function Page({ params }: { params: { id: string } }) {
   // In addition to searchParams, page components also accept a prop called params which you can use to access the id.
@@ -9,6 +10,10 @@ export default async function Page({ params }: { params: { id: string } }) {
     fetchInvoiceById(id),
     fetchCustomers(),
   ]);
+
+  if (!invoice) {
+    notFound();
+  }
 
   // Notice how it's similar to your /create invoice page, except it imports a different form (from the edit-form.tsx
   // file). This form should be pre-populated with a defaultValue for the customer's name, invoice amount, and status.
