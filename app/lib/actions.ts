@@ -1,6 +1,8 @@
 'use server';
 import { sql } from '@vercel/postgres';
 import { error } from 'console';
+import { AuthError } from 'next-auth';
+import { signIn } from '@/auth';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 // By adding the 'use server', you mark all the exported functions within the file as server functions.
@@ -154,5 +156,24 @@ export async function deleteInvoice(id: string) {
     return { message: 'Deleted Invoice' };
   } catch (error) {
     return { message: 'Database Error: Failed to Delete Invoice.' };
+  }
+}
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid Credentials';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
   }
 }
